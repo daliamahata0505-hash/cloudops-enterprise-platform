@@ -21,7 +21,8 @@ jobs:
 
       - name: Check Python syntax
         run: python -m py_compile app/app.py
-
+      - name: Build Docker image
+        run: docker build -t cloudops-enterprise-platform ./app
       - name: Test health endpoint
         run: |
           python - <<'PY'
