@@ -1,0 +1,39 @@
+﻿# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+.aws/
+
+# Terraform generated files and state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Python generated files
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Local editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Never upload Terraform state or local plans
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfplan
+**/crash.log
+
+# Local Terraform variable files
+**/*.tfvars
+**/*.tfvars.json
