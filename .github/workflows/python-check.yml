@@ -1,0 +1,54 @@
+name: Python Application Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Python syntax
+        run: python -m py_compile app/app.py
+
+      - name: Test health endpoint
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          import time
+          import urllib.request
+
+          process = subprocess.Popen([sys.executable, "app/app.py"])
+
+          try:
+              for _ in range(30):
+                  try:
+                      with urllib.request.urlopen(
+                          "http://127.0.0.1:8000/health", timeout=2
+                      ) as response:
+                          payload = json.loads(response.read().decode())
+                          assert response.status == 200
+                          assert payload["status"] == "healthy"
+                          print("Health endpoint passed")
+                          break
+                  except Exception:
+                      time.sleep(1)
+              else:
+                  raise RuntimeError("Application did not become healthy")
+          finally:
+              process.terminate()
+              process.wait(timeout=5)
+          PY
