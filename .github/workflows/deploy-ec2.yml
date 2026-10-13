@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
@@ -15,7 +16,33 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
+
+            echo "Pulling latest Docker image..."
             sudo docker pull daliamahata/cloudops-enterprise-platform:latest
+
+            echo "Removing old container if it exists..."
             sudo docker rm -f cloudops-container || true
-            sudo docker run -d --name cloudops-container --restart unless-stopped -p 80:8000 daliamahata/cloudops-enterprise-platform:latest
-            curl -fsS http://localhost/health
+
+            echo "Starting new container..."
+            sudo docker run -d \
+              --name cloudops-container \
+              --restart unless-stopped \
+              -p 80:8000 \
+              daliamahata/cloudops-enterprise-platform:latest
+
+            echo "Checking application health..."
+            for i in $(seq 1 15); do
+              if curl -fsS http://localhost/health; then
+                echo ""
+                echo "Health check passed!"
+                exit 0
+              fi
+
+              echo "Waiting for application ($i/15)..."
+              sleep 2
+            done
+
+            echo "Health check failed. Container logs:"
+            sudo docker logs --tail 50 cloudops-container
+            exit 1
