@@ -3,9 +3,11 @@ name: Python Application Check
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -77,6 +79,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: |
+          tags: |-
             daliamahata/cloudops-enterprise-platform:latest
             daliamahata/cloudops-enterprise-platform:${{ github.sha }}
+```
