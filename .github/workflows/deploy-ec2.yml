@@ -23,6 +23,9 @@ jobs:
       )
     runs-on: ubuntu-24.04
 
+    env:
+      IMAGE_TAG: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || 'latest' }}
+
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
@@ -33,23 +36,27 @@ jobs:
           script: |
             set -e
 
-            echo "Pulling latest Docker image..."
-            sudo docker pull daliamahata/cloudops-enterprise-platform:latest
+            IMAGE="daliamahata/cloudops-enterprise-platform:${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || 'latest' }}"
 
-            echo "Replacing application container..."
+            echo "Pulling Docker image: $IMAGE"
+            sudo docker pull "$IMAGE"
+
+            echo "Removing previous application container..."
             sudo docker rm -f cloudops-container || true
 
+            echo "Starting application container..."
             sudo docker run -d \
               --name cloudops-container \
               --restart unless-stopped \
               -p 80:8000 \
-              daliamahata/cloudops-enterprise-platform:latest
+              "$IMAGE"
 
             echo "Checking application health..."
             for i in $(seq 1 15); do
               if curl -fsS http://localhost/health; then
                 echo ""
                 echo "Deployment successful!"
+                echo "Deployed image: $IMAGE"
                 exit 0
               fi
 
