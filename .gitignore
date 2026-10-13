@@ -7,14 +7,22 @@
 credentials
 .aws/
 
-# Terraform generated files and state
+# Terraform generated files, providers, state, and plans
 .terraform/
+**/.terraform/
 *.tfstate
 *.tfstate.*
 *.tfplan
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfplan
+**/cloudops-plan
+**/terraform-plan
 *.tfvars
+*.tfvars.json
 !*.tfvars.example
 crash.log
+**/crash.log
 
 # Python generated files
 __pycache__/
@@ -27,13 +35,3 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
-
-# Never upload Terraform state or local plans
-**/*.tfstate
-**/*.tfstate.*
-**/*.tfplan
-**/crash.log
-
-# Local Terraform variable files
-**/*.tfvars
-**/*.tfvars.json
