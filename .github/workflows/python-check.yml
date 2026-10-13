@@ -82,4 +82,3 @@ jobs:
           tags: |-
             daliamahata/cloudops-enterprise-platform:latest
             daliamahata/cloudops-enterprise-platform:${{ github.sha }}
-```
